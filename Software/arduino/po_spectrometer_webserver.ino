@@ -141,13 +141,16 @@ void takeMeasurement()
 }
 
 // Function to display spectrum on M5StickC Plus screen
+// Function to display spectrum on M5StickC Plus screen in portrait orientation
 void displaySpectrum()
 {
     // Clear the screen
     M5.Lcd.fillScreen(COLOR_BLACK);
 
     // Create space at top for headers
-    int topMargin = 40;
+    int topMargin = 20;
+    int bottomMargin = 10;
+    int leftMargin = 10;
 
     // Get selected values
     uint16_t selectedBar = spectralData[wavelengthIndex];
@@ -162,50 +165,57 @@ void displaySpectrum()
             maxVal = spectralData[i];
     }
 
-    // Scale factor
-    float scale = (M5.Lcd.height() - topMargin - 20) / (float)maxVal;
+    // Scale factor - now for width instead of height
+    float scale = (M5.Lcd.width() - leftMargin - 10) / (float)maxVal;
     if (maxVal == 0)
         scale = 1;
 
-    // Calculate bar width and spacing
-    int barWidth = 8;
+    // Calculate bar height and spacing for vertical bars
+    int barHeight = 8;
     int spacing = 2;
-    int startX = (M5.Lcd.width() - (9 * barWidth + 8 * spacing)) / 2;
+    int startY = topMargin;
 
-    // Draw bars
+    // Draw bars horizontally from left to right
     for (int i = 0; i < 9; i++)
     {
-        int height = (int)(spectralData[i] * scale);
-        if (height < 1)
-            height = 1; // Ensure at least 1 pixel height
+        int width = (int)(spectralData[i] * scale);
+        if (width < 1)
+            width = 1; // Ensure at least 1 pixel width
         uint16_t color = wavelengthColors[i];
 
         // Highlight selected wavelength
         if (i == wavelengthIndex)
         {
             M5.Lcd.drawRect(
-                startX + i * (barWidth + spacing) - 1,
-                M5.Lcd.height() - height - 1,
-                barWidth + 2,
-                height + 2,
+                leftMargin - 1,
+                startY + i * (barHeight + spacing) - 1,
+                width + 2,
+                barHeight + 2,
                 COLOR_WHITE);
         }
 
         // Draw the bar
         M5.Lcd.fillRect(
-            startX + i * (barWidth + spacing),
-            M5.Lcd.height() - height,
-            barWidth,
-            height,
+            leftMargin,
+            startY + i * (barHeight + spacing),
+            width,
+            barHeight,
             color);
+
+        // Display wavelength labels on the left side
+        M5.Lcd.setTextSize(1);
+        M5.Lcd.setTextColor(color);
+        M5.Lcd.setCursor(1, startY + i * (barHeight + spacing));
+        M5.Lcd.print(wavelengthValues[i]);
     }
 
-    // Display information at the top
+    // Display information at the bottom
     M5.Lcd.setTextSize(1);
 
     // Selected wavelength
+    int infoY = startY + 9 * (barHeight + spacing) + 5;
     M5.Lcd.setTextColor(selectedColor);
-    M5.Lcd.setCursor(5, 5);
+    M5.Lcd.setCursor(5, infoY);
     M5.Lcd.print(selectedName);
     M5.Lcd.print(" ");
     M5.Lcd.print(wavelengthValues[wavelengthIndex]);
@@ -213,12 +223,12 @@ void displaySpectrum()
 
     // Count value
     M5.Lcd.setTextColor(COLOR_WHITE);
-    M5.Lcd.setCursor(5, 15);
+    M5.Lcd.setCursor(5, infoY + 10);
     M5.Lcd.print("Count: ");
     M5.Lcd.print(selectedBar);
 
     // Gain and integration time
-    M5.Lcd.setCursor(5, 25);
+    M5.Lcd.setCursor(5, infoY + 20);
     M5.Lcd.print("G:");
     M5.Lcd.print(gainFactors[gainIndex]);
     M5.Lcd.print("x I:");
@@ -227,6 +237,7 @@ void displaySpectrum()
     M5.Lcd.print("ms");
 }
 
+// Function to display wavelength selection screen
 // Function to display wavelength selection screen
 void displayWavelengthSelection()
 {
@@ -237,13 +248,13 @@ void displayWavelengthSelection()
     M5.Lcd.setCursor(5, 10);
     M5.Lcd.print("WAVELENGTH");
 
-    M5.Lcd.setTextSize(2);
+    M5.Lcd.setTextSize(1);
     M5.Lcd.setTextColor(COLOR_WHITE);
     M5.Lcd.setCursor(5, 30);
     M5.Lcd.print(wavelengthNames[wavelengthIndex]);
 
     M5.Lcd.setTextSize(1);
-    M5.Lcd.setCursor(5, 50);
+    M5.Lcd.setCursor(5, 45);
     M5.Lcd.print(wavelengthValues[wavelengthIndex]);
     M5.Lcd.print(" nm");
 
@@ -264,7 +275,7 @@ void displayGainSettings()
     M5.Lcd.setCursor(5, 10);
     M5.Lcd.print("GAIN");
 
-    M5.Lcd.setTextSize(2);
+    M5.Lcd.setTextSize(1);
     M5.Lcd.setTextColor(COLOR_WHITE);
     M5.Lcd.setCursor(5, 30);
     M5.Lcd.print("x");
@@ -288,7 +299,7 @@ void displayIntegrationSettings()
     M5.Lcd.setCursor(5, 10);
     M5.Lcd.print("INTEGRATION TIME");
 
-    M5.Lcd.setTextSize(2);
+    M5.Lcd.setTextSize(1);
     M5.Lcd.setTextColor(COLOR_WHITE);
     M5.Lcd.setCursor(5, 30);
     float integrationTimeMs = (atimeSettings[atimeIndex] + 1) * 2.78;
@@ -402,7 +413,7 @@ void setup()
 
     // Initialize M5StickC Plus
     M5.begin();
-    M5.Lcd.setRotation(3);
+    M5.Lcd.setRotation(1);
     M5.Lcd.fillScreen(COLOR_BLACK);
     M5.Lcd.setCursor(0, 0);
     M5.Lcd.setTextColor(COLOR_WHITE);
