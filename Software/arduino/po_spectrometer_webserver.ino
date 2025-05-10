@@ -5,9 +5,12 @@
 #include "html_content.h"
 #include "AS7341.h"
 
-// WiFi credentials - CHANGE THESE
-const char *ssid = "wifi_ssid";
-const char *password = "wifi_password";
+// Access Point Configuration
+const char *ap_ssid = "PocketSpectro";  // Name of the WiFi network the device will create
+const char *ap_password = "spectro123"; // Password for the WiFi network (min 8 characters)
+IPAddress local_ip(192, 168, 4, 1);     // Fixed IP address for the device
+IPAddress gateway(192, 168, 4, 1);      // Gateway (same as IP)
+IPAddress subnet(255, 255, 255, 0);     // Subnet mask
 
 // Create web server object
 WebServer server(80);
@@ -140,7 +143,6 @@ void takeMeasurement()
     newMeasurementTaken = true;
 }
 
-// Function to display spectrum on M5StickC Plus screen
 // Function to display spectrum on M5StickC Plus screen in portrait orientation
 void displaySpectrum()
 {
@@ -238,7 +240,6 @@ void displaySpectrum()
 }
 
 // Function to display wavelength selection screen
-// Function to display wavelength selection screen
 void displayWavelengthSelection()
 {
     M5.Lcd.fillScreen(COLOR_BLACK);
@@ -312,6 +313,14 @@ void displayIntegrationSettings()
     M5.Lcd.print("A: Change");
     M5.Lcd.setCursor(5, 85);
     M5.Lcd.print("B: Spectrum");
+}
+
+// Function to handle DNS requests for captive portal
+void handleDNS()
+{
+    // Redirect all domains to our web server
+    server.sendHeader("Location", String("http://") + WiFi.softAPIP().toString(), true);
+    server.send(302, "text/plain", "");
 }
 
 // HTTP request handlers
@@ -421,9 +430,6 @@ void setup()
     M5.Lcd.println("Pocket Spectrometer");
     M5.Lcd.println("Initializing...");
 
-    // Initialize random seed for mock data variation
-    // randomSeed(analogRead(0));
-
     // Initialize I2C
     Wire.begin(32, 33); // SDA=32, SCL=33 for M5StickC Plus
     Serial.println("I2C initialized");
@@ -449,20 +455,21 @@ void setup()
     // Apply initial settings
     updateSettings();
 
-    // Connect to WiFi
-    WiFi.begin(ssid, password);
-    M5.Lcd.print("Connecting to WiFi");
+    // Set up Access Point
+    Serial.println("Setting up WiFi Access Point...");
+    M5.Lcd.println("Setting up AP...");
 
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        delay(500);
-        M5.Lcd.print(".");
-    }
+    WiFi.mode(WIFI_AP);
+    WiFi.softAPConfig(local_ip, gateway, subnet);
+    WiFi.softAP(ap_ssid, ap_password);
 
-    M5.Lcd.println("");
-    M5.Lcd.println("WiFi connected!");
+    M5.Lcd.println("AP Created!");
+    M5.Lcd.print("SSID: ");
+    M5.Lcd.println(ap_ssid);
+    M5.Lcd.print("Password: ");
+    M5.Lcd.println(ap_password);
     M5.Lcd.print("IP: ");
-    M5.Lcd.println(WiFi.localIP());
+    M5.Lcd.println(WiFi.softAPIP());
 
     // Set up web server routes
     server.on("/", HTTP_GET, handleRoot);
@@ -471,6 +478,9 @@ void setup()
     server.on("/change_wavelength", HTTP_GET, handleChangeWavelength);
     server.on("/adjust_gain", HTTP_GET, handleAdjustGain);
     server.on("/adjust_integration", HTTP_GET, handleAdjustIntegrationTime);
+
+    // Handle all other domains to create a captive portal effect
+    server.onNotFound(handleDNS);
 
     // Start server
     server.begin();
@@ -483,6 +493,7 @@ void setup()
     // Show the spectrum display
     displaySpectrum();
 }
+
 void loop()
 {
     server.handleClient();
