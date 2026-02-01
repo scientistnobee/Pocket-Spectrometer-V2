@@ -124,14 +124,16 @@ intuitive control and visualization:
    - Ensure that `html_content.h`, `AS7341.h`, and `AS7341.cpp` are in the same
      folder
 
-2. **Configure WiFi Settings**:
-   - Locate the WiFi credentials section in the code:
+2. **WiFi Configuration (Optional)**:
+   - The device is pre-configured to create its own WiFi network (Access Point mode)
+   - Default settings in the code:
      ```cpp
-     // WiFi credentials - CHANGE THESE
-     const char *ssid = "your_wifi_ssid";
-     const char *password = "your_wifi_password";
+     // Access Point Configuration
+     const char *ap_ssid = "PocketSpectro";  // WiFi network name
+     const char *ap_password = "spectro123"; // WiFi password (min 8 characters)
+     IPAddress local_ip(192, 168, 4, 1);     // Fixed IP address
      ```
-   - Replace with your WiFi network name and password
+   - **You can customize these settings if desired**, then re-upload the code
 
 3. **Upload to M5StickC Plus**:
    - Connect the M5StickC Plus to your computer
@@ -142,13 +144,20 @@ intuitive control and visualization:
 
 1. **Starting the Device**:
    - After uploading, the M5StickC Plus will restart automatically
-   - The display will show "Connecting to WiFi" followed by the IP address
-   - Note this IP address for browser connection
+   - The display will show initialization steps, then display:
+     - **WiFi Network (SSID):** `PocketSpectro`
+     - **Password:** `spectro123`
+     - **IP Address:** `192.168.4.1`
+   - The device creates its own WiFi network (Access Point mode) - no router connection needed!
 
 2. **Accessing the Web Interface**:
-   - On any device connected to the same WiFi network, open a web browser
-   - Enter the IP address shown on the M5StickC Plus display
-   - The spectrometer web interface should load
+   - On your mobile phone, tablet, or computer:
+     1. Go to WiFi settings
+     2. Connect to the network named **"PocketSpectro"**
+     3. Enter password: **"spectro123"**
+     4. Open a web browser (Chrome, Safari, Firefox, etc.)
+     5. Navigate to: **`http://192.168.4.1`**
+   - The spectrometer web interface should load immediately
 
 3. **Taking Measurements**:
    - Adjust gain, integration time, and wavelength as needed
@@ -201,17 +210,24 @@ The spectrometer allows adjustment of two key parameters:
 
 ### Common Issues
 
-1. **WiFi Connection Fails**:
-   - Verify WiFi credentials in the code
-   - Ensure the M5StickC Plus is within range of your WiFi router
-   - Try a different WiFi network if available
+1. **Can't See the WiFi Network**:
+   - Ensure the M5StickC Plus is powered on
+   - Look for the startup screen showing "WiFi Created!"
+   - The network name should be "PocketSpectro"
+   - Make sure WiFi is enabled on your connecting device
 
-2. **Web Interface Doesn't Load**:
-   - Confirm you're using the correct IP address
+2. **Can't Connect to PocketSpectro Network**:
+   - Double-check the password is exactly: `spectro123` (case-sensitive)
+   - Try forgetting the network on your device and reconnecting
+   - Restart the M5StickC Plus by pressing the power button
+
+3. **Web Interface Doesn't Load**:
+   - Confirm you're using the correct IP address: `http://192.168.4.1`
    - Ensure your browser has JavaScript enabled
    - Try a different browser or device
+   - Make sure you're connected to the "PocketSpectro" WiFi network
 
-3. **Sensor Readings Are Inconsistent**:
+4. **Sensor Readings Are Inconsistent**:
    - Adjust gain and integration time for optimal readings
    - Ensure consistent lighting conditions
    - Check that the sensor is properly connected to the M5StickC Plus
