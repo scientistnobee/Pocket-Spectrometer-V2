@@ -30,6 +30,10 @@ spectral data through a browser.
    - Go to **Tools > Manage Libraries**
    - Search for "M5StickC" and install the "M5StickCPlus" library
    - Also install "WiFi" and "WebServer" libraries if not already included
+   
+   **For M5StickC Plus 2 Users**:
+   - Also install the "M5StickCPlus2" library from the Library Manager
+   - The Plus 2 version uses a separate codebase (see below)
 
 4. **Configure Board Settings**:
    - Select **Tools > Board > ESP32 Arduino > M5Stick-C**
@@ -56,6 +60,52 @@ spectral data through a browser.
    - Load a simple example sketch (e.g., M5StickC Plus > Basics > HelloWorld)
    - Click the Upload button (right arrow icon)
    - If successful, you should see "Hello World" on the M5StickC Plus display
+
+## M5StickC Plus 2 Support
+
+A **separate version** of the code has been created for the M5StickC Plus 2 due to hardware differences:
+
+### Code Location
+
+- **M5StickC Plus**: `Software/arduino/po_spectrometer_webserver/`
+- **M5StickC Plus 2**: `Software/arduino/po_spectrometer_webserver_plus2/`
+
+### Key Differences
+
+| Feature | M5StickC Plus | M5StickC Plus 2 |
+|---------|---------------|------------------|
+| **Library** | `M5StickCPlus.h` | `M5StickCPlus2.h` |
+| **Display API** | `M5.Lcd` | `M5.Display` |
+| **I2C Pins (SDA, SCL)** | GPIO 32, 33 | GPIO 0, 26 |
+| **Code Folder** | `po_spectrometer_webserver` | `po_spectrometer_webserver_plus2` |
+
+### Using the Plus 2 Version
+
+1. Open `Software/arduino/po_spectrometer_webserver_plus2/po_spectrometer_webserver_plus2.ino`
+2. Make sure you have the **M5StickCPlus2** library installed
+3. Select **Tools > Board > M5Stick-C-Plus** or **M5Stick-C-Plus2** (if available)
+4. Upload as normal
+
+### Known Issues - M5StickC Plus 2
+
+> [!WARNING]
+> Some M5StickC Plus 2 units may have I2C connectivity issues with the AS7341 sensor.
+
+**Symptoms:**
+- Display shows "SENSOR ERROR!"
+- I2C scanner finds no devices
+- Code uploads successfully but sensor is not detected
+
+**Possible Causes:**
+1. **Different Grove connector pins** - The Plus 2 may use undocumented I2C pins
+2. **Faulty sensor** - The AS7341 sensor may be defective
+3. **Hardware incompatibility** - Some Plus 2 revisions may have incompatible Grove ports
+
+**Troubleshooting:**
+1. Use the included I2C scanner tool: `Software/arduino/i2c_scanner_plus2/`
+2. Test with the working M5StickC Plus to verify the sensor is functional
+3. Check physical Grove connector for damage
+4. Try different I2C pin combinations if documented for your specific Plus 2 revision
 
 ## Project Implementation
 
