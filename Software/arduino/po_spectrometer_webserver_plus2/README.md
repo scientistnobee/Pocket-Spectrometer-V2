@@ -10,7 +10,8 @@ The M5StickC Plus 2 has different hardware that requires code modifications:
 |---------------------|---------------|-----------------|
 | **Library** | M5StickCPlus.h | M5StickCPlus2.h |
 | **Display API** | M5.Lcd | M5.Display |
-| **I2C Pins** | GPIO 32 (SDA), 33 (SCL) | GPIO 0 (SDA), 26 (SCL) |
+| **I2C Pins** | GPIO 32 (SDA), 33 (SCL) | GPIO 32 (SDA), 33 (SCL) — same pins |
+| **I2C Init** | `Wire.begin(32, 33)` | `Wire.end(); Wire.begin(32, 33, 100000)` |
 
 ## Files
 
@@ -34,31 +35,27 @@ The M5StickC Plus 2 has different hardware that requires code modifications:
    - Password: `spectro123`
    - Web interface: `http://192.168.4.1`
 
-## Known Issues
+## Known Issues (Resolved)
 
-⚠️ **I2C Sensor Detection Problem**
+~~⚠️ **I2C Sensor Detection Problem**~~
 
-Some M5StickC Plus 2 units cannot detect the AS7341 sensor over I2C.
+**FIXED.** The sensor error on M5StickC Plus 2 was caused by I2C bus initialisation, not wrong pins.
 
-**Symptoms:**
-- Display shows "SENSOR ERROR!"
-- I2C scanner finds no devices
+**Root cause:** `M5.begin()` leaves the Wire bus in a state that prevents the AS7341 from being detected. The fix is to call `Wire.end()` first, then re-initialise at 100kHz:
 
-**Possible causes:**
-- Undocumented I2C pin changes in some Plus 2 revisions
-- Faulty AS7341 sensor
-- Incompatible Grove connector
+```cpp
+Wire.end();
+Wire.begin(32, 33, 100000);  // release + reinit at 100kHz
+sensor = AS7341(Wire);
+```
 
-**Troubleshooting:**
-1. Use I2C scanner: `../i2c_scanner_plus2/`
-2. Test sensor with original M5StickC Plus
-3. Check Grove cable and connector
+The Grove PORT A pins are the same on Plus and Plus 2: **GPIO32 (SDA), GPIO33 (SCL)**. Confirmed from the official M5Stack UserDemo source (`M5StickCPlus2-UserDemo/src/test/test_io.cpp`).
 
 ## Differences from Original
 
 **Changed:**
 - Line 5: `#include <M5StickCPlus2.h>` (was `M5StickCPlus.h`)
-- Line 600: `Wire.begin(0, 26)` (was `Wire.begin(32, 33)`)
+- Line 600: `Wire.end(); Wire.begin(32, 33, 100000)` — release before re-init, explicit 100kHz
 - All display calls: `M5.Display` (was `M5.Lcd`)
 
 **Unchanged:**

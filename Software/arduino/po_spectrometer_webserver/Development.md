@@ -76,7 +76,8 @@ A **separate version** of the code has been created for the M5StickC Plus 2 due 
 |---------|---------------|------------------|
 | **Library** | `M5StickCPlus.h` | `M5StickCPlus2.h` |
 | **Display API** | `M5.Lcd` | `M5.Display` |
-| **I2C Pins (SDA, SCL)** | GPIO 32, 33 | GPIO 0, 26 |
+| **I2C Pins (SDA, SCL)** | GPIO 32, 33 | GPIO 32, 33 — same pins |
+| **I2C Init** | `Wire.begin(32, 33)` | `Wire.end(); Wire.begin(32, 33, 100000)` |
 | **Code Folder** | `po_spectrometer_webserver` | `po_spectrometer_webserver_plus2` |
 
 ### Using the Plus 2 Version
@@ -86,26 +87,20 @@ A **separate version** of the code has been created for the M5StickC Plus 2 due 
 3. Select **Tools > Board > M5Stick-C-Plus** or **M5Stick-C-Plus2** (if available)
 4. Upload as normal
 
-### Known Issues - M5StickC Plus 2
+### Known Issues - M5StickC Plus 2 (Resolved)
 
-> [!WARNING]
-> Some M5StickC Plus 2 units may have I2C connectivity issues with the AS7341 sensor.
+**FIXED.** The "SENSOR ERROR!" on M5StickC Plus 2 was a Wire initialisation issue, not a pin or hardware problem.
 
-**Symptoms:**
-- Display shows "SENSOR ERROR!"
-- I2C scanner finds no devices
-- Code uploads successfully but sensor is not detected
+**Root cause:** `M5.begin()` leaves the Wire bus in an unclean state on Plus 2. The sensor cannot be detected unless Wire is fully released and re-initialised.
 
-**Possible Causes:**
-1. **Different Grove connector pins** - The Plus 2 may use undocumented I2C pins
-2. **Faulty sensor** - The AS7341 sensor may be defective
-3. **Hardware incompatibility** - Some Plus 2 revisions may have incompatible Grove ports
+**Fix** (applied in `po_spectrometer_webserver_plus2.ino`):
+```cpp
+Wire.end();
+Wire.begin(32, 33, 100000);  // SDA=GPIO32, SCL=GPIO33, 100kHz
+sensor = AS7341(Wire);
+```
 
-**Troubleshooting:**
-1. Use the included I2C scanner tool: `Software/arduino/i2c_scanner_plus2/`
-2. Test with the working M5StickC Plus to verify the sensor is functional
-3. Check physical Grove connector for damage
-4. Try different I2C pin combinations if documented for your specific Plus 2 revision
+Note: Grove PORT A pins are **GPIO32 (SDA) and GPIO33 (SCL)** on both Plus and Plus 2 — confirmed from official M5Stack UserDemo source.
 
 ## Project Implementation
 

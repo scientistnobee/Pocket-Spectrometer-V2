@@ -597,8 +597,11 @@ void setup() {
   M5.Display.println("Initializing...");
 
   // Initialize I2C for M5StickC Plus 2
-  Wire.begin(0, 26); // SDA=0, SCL=26
-  Serial.println("I2C initialized for M5StickC Plus 2 (SDA=0, SCL=26)");
+  // Grove PORT A = GPIO32 (SDA), GPIO33 (SCL) on Wire (I2C_NUM_0).
+  // Wire.end() first to release any state set by M5.begin(), then re-init at 100kHz.
+  Wire.end();
+  Wire.begin(32, 33, 100000);
+  Serial.println("I2C initialized for M5StickC Plus 2 (Wire: SDA=32, SCL=33, 100kHz)");
 
   // Initialize AS7341 sensor
   sensor = AS7341(Wire);
