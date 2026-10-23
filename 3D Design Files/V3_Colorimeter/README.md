@@ -16,3 +16,5 @@ Cuvette-based colorimeter variant using an M5StickC Plus and an AS7341 board.
 - The sleeve is a plain cuboid with 1.5 mm walls, 1.0 mm gap to the lid, open +X end, and a -Y slot for the USB-C and Grove plugs.
 - The base STL exports with an OpenSCAD "may not be a valid 2-manifold" warning; check it in your slicer.
 - v14 hinge: the lid has an integral O1.8 pin in O2.6 lug holes (`pin_clear` = 0.4). Print the cover floor-down with the lid folded open; no supports. If the hinge fuses raise `pin_clear` to 0.5, if loose lower it to 0.3. Untested print.
+- base6: the lid screw holes and lid screw windows on the -Y face are removed, and the buttonB cutout runs out through the +X end so no floating wall piece is left.
+- `STLs/m5stick_colorometer_ada_cover_v14_cover.stl` and `..._lid.stl` are the v14 parts in the closed pose (for the FreeCAD assembly); print `..._v14_print.stl`.

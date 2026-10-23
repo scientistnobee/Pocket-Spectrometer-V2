@@ -111,22 +111,6 @@ cube ([h_m5, 1, 3], center=true);// for m5 slit2
            cube([40,8,8], center=true);//optical sensor window 
            
  
-  rotate([90,0,0])
-translate([16,9,6])
-cylinder(d=hole_d, h=10);//lid screw1   
- 
-   rotate([90,0,0])
-translate([16,-9,6])
-cylinder(d=hole_d, h=10);//lid screw2   
-
-      translate([21,-14,-9]) 
-           cube([10,3,Screwdia2], center=true);//lid screw window 
- 
-       translate([21,-14,9]) 
-           cube([10,3,Screwdia2], center=true);//lid screw  window 
- 
-        translate([21,-14,0]) 
-           cube([10,3,15], center=true);//lid screw  window 
             
 
    
@@ -153,8 +137,8 @@ cylinder(d=13, h=10);// button for m5 buttonC
 cylinder(d=13, h=10);// for m5 buttonB
     
     
-     translate([14,24,11]) 
-cube ([20, 13, 8], center=true);// for m5 buttonB
+     translate([15.5,24,11]) 
+cube ([23, 13, 8], center=true);// for m5 buttonB; runs out through the +X end face (X 4..27) so no floating wall piece is left at X 24..26.1
 }
 
 
