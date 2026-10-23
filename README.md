@@ -28,6 +28,8 @@ This repository is the second version of the Pocket Spectrometer. The main impro
 * Cap 
 * White reflector 
 
+A cuvette-based colorimeter variant (V3) is in `3D Design Files/V3_Colorimeter`.
+
 ## Hardware Tools Required
 
 * 3D printer  
